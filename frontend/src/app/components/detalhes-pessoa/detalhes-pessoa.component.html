@@ -1,0 +1,55 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2>Detalhes da Pessoa</h2>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <div *ngIf="!loading && !error && pessoa">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p><strong>Nome:</strong> {{ pessoa.nome }}</p>
+            <p><strong>CPF:</strong> {{ pessoa.cpf }}</p>
+            <p><strong>Data de Nascimento:</strong> {{ pessoa.data_nasc | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Sexo:</strong> {{ pessoa.sexo === 'M' ? 'Masculino' : 'Feminino' }}</p>
+            <p><strong>Altura:</strong> {{ pessoa.altura }}m</p>
+            <p><strong>Peso:</strong> {{ pessoa.peso }}kg</p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col">
+            <button class="btn btn-primary me-2" (click)="calcularPesoIdeal()" [disabled]="loading">
+              Calcular Peso Ideal
+            </button>
+            <button class="btn btn-warning me-2" (click)="editar()" [disabled]="loading">
+              Editar
+            </button>
+            <button class="btn btn-danger me-2" (click)="excluir()" [disabled]="loading">
+              Excluir
+            </button>
+            <button class="btn btn-secondary" (click)="voltar()" [disabled]="loading">
+              Voltar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="statusCalculado" class="alert" [ngClass]="{'alert-success': status === 'Peso adequado', 'alert-warning': status === 'Acima do peso ideal'}">
+          <p><strong>Peso Ideal:</strong> {{ pesoIdeal }}kg</p>
+          <p><strong>Status:</strong> {{ status }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

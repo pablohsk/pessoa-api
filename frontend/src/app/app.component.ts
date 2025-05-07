@@ -7,25 +7,13 @@ import { HeaderComponent } from './components/header/header.component';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
   template: `
-    <div class="app-container">
-      <app-header></app-header>
-      <main class="main-content">
-        <router-outlet></router-outlet>
-      </main>
-    </div>
+    <app-header></app-header>
+    <main class="container py-4">
+      <router-outlet></router-outlet>
+    </main>
   `,
-  styles: [`
-    .app-container {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .main-content {
-      flex: 1;
-      padding: 20px 0;
-    }
-  `]
+  styles: []
 })
 export class AppComponent {
-  title = 'pessoa-api';
+  title = 'Sistema de Gestão de Pessoas';
 }

@@ -15,30 +15,33 @@ import { PessoaService } from '../../services/pessoa.service';
         <div class="col-md-8 offset-md-2">
           <div class="card">
             <div class="card-body">
-              <h3 class="card-title mb-4">{{ isEditing ? 'Alterar Pessoa' : 'Adicionar Pessoa' }}</h3>
+              <h3 class="card-title mb-4">{{ isEditMode ? 'Alterar Pessoa' : 'Nova Pessoa' }}</h3>
               
-              <form [formGroup]="pessoaForm" (ngSubmit)="onSubmit()">
+              <form [formGroup]="form" (ngSubmit)="onSubmit()">
                 <div class="mb-3">
                   <label for="nome" class="form-label">Nome</label>
-                  <input type="text" class="form-control" id="nome" formControlName="nome">
-                  <div class="text-danger" *ngIf="pessoaForm.get('nome')?.errors?.['required'] && pessoaForm.get('nome')?.touched">
+                  <input type="text" class="form-control" id="nome" formControlName="nome"
+                         [ngClass]="{'is-invalid': form.get('nome')?.invalid && form.get('nome')?.touched}">
+                  <div class="invalid-feedback" *ngIf="form.get('nome')?.errors?.['required']">
                     Nome é obrigatório
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label for="data_nasc" class="form-label">Data de Nascimento</label>
-                  <input type="date" class="form-control" id="data_nasc" formControlName="data_nasc">
-                  <div class="text-danger" *ngIf="pessoaForm.get('data_nasc')?.errors?.['required'] && pessoaForm.get('data_nasc')?.touched">
-                    Data de nascimento é obrigatória
+                  <label for="cpf" class="form-label">CPF</label>
+                  <input type="text" class="form-control" id="cpf" formControlName="cpf"
+                         [ngClass]="{'is-invalid': form.get('cpf')?.invalid && form.get('cpf')?.touched}">
+                  <div class="invalid-feedback" *ngIf="form.get('cpf')?.errors?.['required']">
+                    CPF é obrigatório
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label for="cpf" class="form-label">CPF</label>
-                  <input type="text" class="form-control" id="cpf" formControlName="cpf" [readonly]="isEditing">
-                  <div class="text-danger" *ngIf="pessoaForm.get('cpf')?.errors?.['required'] && pessoaForm.get('cpf')?.touched">
-                    CPF é obrigatório
+                  <label for="data_nasc" class="form-label">Data de Nascimento</label>
+                  <input type="date" class="form-control" id="data_nasc" formControlName="data_nasc"
+                         [ngClass]="{'is-invalid': form.get('data_nasc')?.invalid && form.get('data_nasc')?.touched}">
+                  <div class="invalid-feedback" *ngIf="form.get('data_nasc')?.errors?.['required']">
+                    Data de nascimento é obrigatória
                   </div>
                 </div>
 
@@ -52,32 +55,40 @@ import { PessoaService } from '../../services/pessoa.service';
                     <input class="form-check-input" type="radio" id="sexoF" value="F" formControlName="sexo">
                     <label class="form-check-label" for="sexoF">Feminino</label>
                   </div>
-                  <div class="text-danger" *ngIf="pessoaForm.get('sexo')?.errors?.['required'] && pessoaForm.get('sexo')?.touched">
+                  <div class="invalid-feedback" *ngIf="form.get('sexo')?.errors?.['required']">
                     Sexo é obrigatório
                   </div>
                 </div>
 
                 <div class="mb-3">
                   <label for="altura" class="form-label">Altura (m)</label>
-                  <input type="number" step="0.01" class="form-control" id="altura" formControlName="altura">
-                  <div class="text-danger" *ngIf="pessoaForm.get('altura')?.errors?.['required'] && pessoaForm.get('altura')?.touched">
+                  <input type="number" step="0.01" class="form-control" id="altura" formControlName="altura"
+                         [ngClass]="{'is-invalid': form.get('altura')?.invalid && form.get('altura')?.touched}">
+                  <div class="invalid-feedback" *ngIf="form.get('altura')?.errors?.['required']">
                     Altura é obrigatória
                   </div>
                 </div>
 
                 <div class="mb-3">
                   <label for="peso" class="form-label">Peso (kg)</label>
-                  <input type="number" step="0.1" class="form-control" id="peso" formControlName="peso">
-                  <div class="text-danger" *ngIf="pessoaForm.get('peso')?.errors?.['required'] && pessoaForm.get('peso')?.touched">
+                  <input type="number" step="0.01" class="form-control" id="peso" formControlName="peso"
+                         [ngClass]="{'is-invalid': form.get('peso')?.invalid && form.get('peso')?.touched}">
+                  <div class="invalid-feedback" *ngIf="form.get('peso')?.errors?.['required']">
                     Peso é obrigatório
                   </div>
                 </div>
 
                 <div class="d-flex gap-3">
-                  <button type="submit" class="btn btn-primary" [disabled]="pessoaForm.invalid">
-                    {{ isEditing ? 'Salvar Alterações' : 'Adicionar' }}
+                  <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">
+                    <i class="bi bi-save"></i> {{ loading ? 'Salvando...' : 'Salvar' }}
                   </button>
-                  <button type="button" class="btn btn-secondary" (click)="voltar()">Cancelar</button>
+                  <button type="button" class="btn btn-secondary" (click)="cancelar()">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                  </button>
+                </div>
+
+                <div *ngIf="mensagem" class="alert mt-3" [ngClass]="{'alert-success': tipoMensagem === 'sucesso', 'alert-danger': tipoMensagem === 'erro'}">
+                  {{ mensagem }}
                 </div>
               </form>
             </div>
@@ -93,74 +104,122 @@ import { PessoaService } from '../../services/pessoa.service';
       align-items: center;
       gap: 0.5rem;
     }
+    .btn i {
+      font-size: 1.1rem;
+    }
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
   `]
 })
 export class FormPessoaComponent implements OnInit {
-  pessoaForm: FormGroup;
-  isEditing = false;
+  form: FormGroup;
+  isEditMode = false;
+  loading = false;
+  error: string | null = null;
+  mensagem: string = '';
+  tipoMensagem: 'sucesso' | 'erro' = 'sucesso';
+  pessoa: Pessoa | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private pessoaService: PessoaService,
+    private route: ActivatedRoute,
     private router: Router,
-    private route: ActivatedRoute
+    private pessoaService: PessoaService
   ) {
-    this.pessoaForm = this.fb.group({
-      nome: ['', Validators.required],
-      data_nasc: ['', Validators.required],
-      cpf: ['', Validators.required],
+    this.form = this.fb.group({
+      nome: [null, Validators.required],
+      cpf: [null, Validators.required],
+      data_nasc: [null, Validators.required],
       sexo: ['M', Validators.required],
-      altura: ['', Validators.required],
-      peso: ['', Validators.required]
+      altura: [null, Validators.required],
+      peso: [null, Validators.required]
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const cpf = this.route.snapshot.paramMap.get('cpf');
     if (cpf) {
-      this.isEditing = true;
+      this.isEditMode = true;
       this.carregarPessoa(cpf);
     }
   }
 
-  carregarPessoa(cpf: string) {
-    this.pessoaService.pesquisarPorCpf(cpf).subscribe(
-      (pessoa: Pessoa) => {
-        this.pessoaForm.patchValue(pessoa);
+  carregarPessoa(cpf: string): void {
+    this.loading = true;
+    this.error = null;
+    this.pessoaService.pesquisarPorCpf(cpf).subscribe({
+      next: (data) => {
+        this.pessoa = data;
+        this.form.patchValue({
+          nome: data.nome,
+          cpf: data.cpf,
+          data_nasc: data.data_nasc,
+          sexo: data.sexo,
+          altura: data.altura,
+          peso: data.peso
+        });
+        this.loading = false;
       },
-      (erro: any) => {
-        console.error('Erro ao carregar pessoa:', erro);
+      error: (err) => {
+        this.error = 'Erro ao carregar dados da pessoa';
+        this.loading = false;
+        console.error('Erro:', err);
+        this.mostrarMensagem('Erro ao carregar dados: ' + err.message, 'erro');
       }
-    );
+    });
   }
 
-  onSubmit() {
-    if (this.pessoaForm.valid) {
-      const pessoa: Pessoa = this.pessoaForm.value;
-      
-      if (this.isEditing) {
-        this.pessoaService.alterar(pessoa.cpf, pessoa).subscribe(
-          () => {
-            this.router.navigate(['/pesquisar']);
-          },
-          (erro: any) => {
-            console.error('Erro ao alterar pessoa:', erro);
-          }
-        );
-      } else {
-        this.pessoaService.incluir(pessoa).subscribe(
-          () => {
-            this.router.navigate(['/pesquisar']);
-          },
-          (erro: any) => {
-            console.error('Erro ao incluir pessoa:', erro);
-          }
-        );
-      }
+  onSubmit(): void {
+    if (this.form.invalid) return;
+
+    this.loading = true;
+    this.error = null;
+
+    const pessoaData: Pessoa = this.form.value;
+
+    if (this.isEditMode && this.pessoa) {
+      pessoaData.id = this.pessoa.id;
+      this.pessoaService.atualizarPessoa(pessoaData).subscribe({
+        next: () => {
+          this.loading = false;
+          this.mostrarMensagem('Pessoa atualizada com sucesso!', 'sucesso');
+          setTimeout(() => this.router.navigate(['/pessoa/pesquisar']), 2000);
+        },
+        error: (err) => {
+          this.error = 'Erro ao atualizar pessoa';
+          this.loading = false;
+          console.error('Erro:', err);
+          this.mostrarMensagem('Erro ao atualizar: ' + err.message, 'erro');
+        }
+      });
+    } else {
+      this.pessoaService.criarPessoa(pessoaData).subscribe({
+        next: () => {
+          this.loading = false;
+          this.mostrarMensagem('Pessoa criada com sucesso!', 'sucesso');
+          setTimeout(() => this.router.navigate(['/pessoa/pesquisar']), 2000);
+        },
+        error: (err) => {
+          this.error = 'Erro ao criar pessoa';
+          this.loading = false;
+          console.error('Erro:', err);
+          this.mostrarMensagem('Erro ao criar: ' + err.message, 'erro');
+        }
+      });
     }
   }
 
-  voltar() {
-    this.router.navigate(['/pesquisar']);
+  mostrarMensagem(mensagem: string, tipo: 'sucesso' | 'erro') {
+    this.mensagem = mensagem;
+    this.tipoMensagem = tipo;
+    setTimeout(() => {
+      this.mensagem = '';
+    }, 5000);
+  }
+
+  cancelar(): void {
+    this.router.navigate(['/pessoa/pesquisar']);
   }
 } 

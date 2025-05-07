@@ -18,19 +18,19 @@ import { PessoaService } from '../../services/pessoa.service';
               
               <div class="mb-4">
                 <p><strong>CPF:</strong> {{ pessoa.cpf }}</p>
-                <p><strong>Data de Nascimento:</strong> {{ pessoa.data_nasc | date:'dd/MM/yyyy' }}</p>
+                <p><strong>Data de Nascimento:</strong> {{ formatarData(pessoa.data_nasc) }}</p>
                 <p><strong>Sexo:</strong> {{ pessoa.sexo === 'M' ? 'Masculino' : 'Feminino' }}</p>
                 <p><strong>Altura:</strong> {{ pessoa.altura }}m</p>
                 <p><strong>Peso:</strong> {{ pessoa.peso }}kg</p>
-                <p *ngIf="pesoIdeal > 0"><strong>Peso Ideal:</strong> {{ pesoIdeal }}kg</p>
-                <p *ngIf="statusCalculado" [ngClass]="{'text-success': pessoa.peso <= pesoIdeal, 'text-danger': pessoa.peso > pesoIdeal}">
-                  <strong>Status:</strong> {{ pessoa.peso <= pesoIdeal ? 'Peso adequado' : 'Acima do peso ideal' }}
+                <p *ngIf="pessoa.peso_ideal"><strong>Peso Ideal:</strong> {{ pessoa.peso_ideal }}kg</p>
+                <p *ngIf="pessoa.status" [ngClass]="getStatusClass(pessoa.status_peso)">
+                  <strong>Status:</strong> {{ pessoa.status }}
                 </p>
               </div>
 
               <div class="d-flex gap-3">
-                <button class="btn btn-primary" (click)="calcularPesoIdeal()" [disabled]="calculando">
-                  <i class="bi bi-calculator"></i> {{ calculando ? 'Calculando...' : 'Calcular Peso Ideal' }}
+                <button class="btn btn-primary" (click)="calcularPesoIdeal()" [disabled]="loading">
+                  <i class="bi bi-calculator"></i> {{ loading ? 'Calculando...' : 'Calcular Peso Ideal' }}
                 </button>
                 <button class="btn btn-warning" (click)="editarPessoa()">
                   <i class="bi bi-pencil"></i> Alterar
@@ -63,6 +63,15 @@ import { PessoaService } from '../../services/pessoa.service';
       cursor: not-allowed;
       opacity: 0.7;
     }
+    .text-success {
+      color: #28a745;
+    }
+    .text-danger {
+      color: #dc3545;
+    }
+    .text-warning {
+      color: #ffc107;
+    }
   `]
 })
 export class DetalhesPessoaComponent implements OnInit {
@@ -74,9 +83,8 @@ export class DetalhesPessoaComponent implements OnInit {
     altura: 0,
     peso: 0
   };
-  pesoIdeal: number = 0;
-  calculando: boolean = false;
-  statusCalculado: boolean = false;
+  loading = false;
+  error: string | null = null;
   mensagem: string = '';
   tipoMensagem: 'sucesso' | 'erro' = 'sucesso';
 
@@ -86,39 +94,49 @@ export class DetalhesPessoaComponent implements OnInit {
     private pessoaService: PessoaService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const cpf = this.route.snapshot.paramMap.get('cpf');
     if (cpf) {
       this.carregarPessoa(cpf);
     }
   }
 
-  carregarPessoa(cpf: string) {
-    this.pessoaService.pesquisarPorCpf(cpf).subscribe(
-      (pessoa: Pessoa) => {
-        this.pessoa = pessoa;
+  carregarPessoa(cpf: string): void {
+    this.loading = true;
+    this.error = null;
+    this.pessoaService.pesquisarPorCpf(cpf).subscribe({
+      next: (data) => {
+        this.pessoa = data;
+        this.loading = false;
       },
-      (erro: any) => {
-        this.mostrarMensagem('Erro ao carregar pessoa: ' + erro.message, 'erro');
+      error: (err) => {
+        this.error = 'Erro ao carregar dados da pessoa';
+        this.loading = false;
+        console.error('Erro:', err);
       }
-    );
+    });
   }
 
-  calcularPesoIdeal() {
-    this.calculando = true;
-    this.mensagem = '';
-    this.pessoaService.calcularPesoIdeal(this.pessoa.cpf).subscribe(
-      (resultado: { peso_ideal: number }) => {
-        this.pesoIdeal = resultado.peso_ideal;
-        this.statusCalculado = true;
+  calcularPesoIdeal(): void {
+    if (!this.pessoa?.cpf) return;
+
+    this.loading = true;
+    this.error = null;
+    this.pessoaService.calcularPesoIdeal(this.pessoa.cpf).subscribe({
+      next: (data) => {
+        this.pessoa.peso_ideal = data.peso_ideal;
+        this.pessoa.status = data.status;
+        this.pessoa.status_peso = data.status_peso;
+        this.loading = false;
         this.mostrarMensagem('Peso ideal calculado com sucesso!', 'sucesso');
-        this.calculando = false;
       },
-      (erro: any) => {
-        this.mostrarMensagem('Erro ao calcular peso ideal: ' + erro.message, 'erro');
-        this.calculando = false;
+      error: (err) => {
+        this.error = 'Erro ao calcular peso ideal';
+        this.loading = false;
+        console.error('Erro:', err);
+        this.mostrarMensagem('Erro ao calcular peso ideal: ' + err.message, 'erro');
       }
-    );
+    });
   }
 
   mostrarMensagem(mensagem: string, tipo: 'sucesso' | 'erro') {
@@ -130,19 +148,43 @@ export class DetalhesPessoaComponent implements OnInit {
   }
 
   editarPessoa() {
-    this.router.navigate(['/alterar', this.pessoa.cpf]);
+    this.router.navigate(['/pessoa/editar', this.pessoa.cpf]);
   }
 
   excluirPessoa() {
     if (confirm('Tem certeza que deseja excluir esta pessoa?')) {
-      this.pessoaService.excluir(this.pessoa.cpf).subscribe(
-        () => {
-          this.router.navigate(['/pesquisar']);
+      this.loading = true;
+      this.error = null;
+      this.pessoaService.excluirPessoa(this.pessoa.cpf).subscribe({
+        next: () => {
+          this.router.navigate(['/pessoa/pesquisar']);
         },
-        (erro: any) => {
-          this.mostrarMensagem('Erro ao excluir pessoa: ' + erro.message, 'erro');
+        error: (err) => {
+          this.error = 'Erro ao excluir pessoa';
+          this.loading = false;
+          console.error('Erro:', err);
+          this.mostrarMensagem('Erro ao excluir pessoa: ' + err.message, 'erro');
         }
-      );
+      });
+    }
+  }
+
+  formatarData(data: string): string {
+    if (!data) return '';
+    const [ano, mes, dia] = data.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  getStatusClass(status: string | undefined): string {
+    switch (status) {
+      case 'adequado':
+        return 'text-success';
+      case 'acima':
+        return 'text-danger';
+      case 'abaixo':
+        return 'text-warning';
+      default:
+        return '';
     }
   }
 } 

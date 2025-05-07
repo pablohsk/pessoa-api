@@ -4,9 +4,10 @@ import { FormPessoaComponent } from './components/form-pessoa/form-pessoa.compon
 import { PesquisarPessoaComponent } from './components/pesquisar-pessoa/pesquisar-pessoa.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/pesquisar', pathMatch: 'full' },
-  { path: 'pesquisar', component: PesquisarPessoaComponent },
-  { path: 'detalhes/:cpf', component: DetalhesPessoaComponent },
-  { path: 'adicionar', component: FormPessoaComponent },
-  { path: 'alterar/:cpf', component: FormPessoaComponent }
+  { path: '', redirectTo: '/pessoa/pesquisar', pathMatch: 'full' },
+  { path: 'pessoa/pesquisar', component: PesquisarPessoaComponent },
+  { path: 'pessoa/detalhes/:cpf', component: DetalhesPessoaComponent },
+  { path: 'pessoa/nova', component: FormPessoaComponent },
+  { path: 'pessoa/editar/:cpf', component: FormPessoaComponent },
+  { path: '**', redirectTo: '/pessoa/pesquisar' }
 ];

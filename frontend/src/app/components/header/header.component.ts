@@ -1,33 +1,34 @@
 import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [RouterLink],
   template: `
-    <header class="bg-primary text-white p-3">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-          <h1 class="h4 mb-0">Sistema de Pessoas</h1>
-          <nav>
-            <a routerLink="/adicionar" class="btn btn-outline-light me-2">
-              Adicionar Pessoa
-            </a>
-            <a routerLink="/pesquisar" class="btn btn-outline-light">
-              Pesquisar Pessoa
-            </a>
-          </nav>
+        <a class="navbar-brand" routerLink="/">Sistema de Gestão de Pessoas</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/pessoa/pesquisar" routerLinkActive="active">
+                Lista de Pessoas
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/pessoa/nova" routerLinkActive="active">
+                Nova Pessoa
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
-    </header>
+    </nav>
   `,
-  styles: [`
-    header {
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-  `]
+  styles: []
 })
-export class HeaderComponent {
-  constructor(private router: Router) {}
-} 
+export class HeaderComponent {} 
