@@ -23,7 +23,7 @@ export class PessoaService {
   }
 
   atualizarPessoa(pessoa: Pessoa): Observable<Pessoa> {
-    return this.http.put<Pessoa>(`${this.apiUrl}/atualizar/`, pessoa);
+    return this.http.put<Pessoa>(`${this.apiUrl}/atualizar/${pessoa.cpf}/`, pessoa);
   }
 
   excluirPessoa(cpf: string): Observable<void> {
