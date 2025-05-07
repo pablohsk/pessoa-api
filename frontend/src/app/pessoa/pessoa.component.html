@@ -1,0 +1,160 @@
+<div class="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+  <div class="relative py-3 sm:max-w-xl sm:mx-auto">
+    <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
+      <div class="max-w-md mx-auto">
+        <div class="divide-y divide-gray-200">
+          <div class="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+            <h1 class="text-3xl font-bold text-blue-600 mb-8 text-center">Cadastro de Pessoa</h1>
+            
+            <form [formGroup]="pessoaForm" class="space-y-6">
+              <!-- Nome -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Nome</label>
+                <input 
+                  formControlName="nome" 
+                  type="text" 
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Digite seu nome completo"
+                >
+                <div *ngIf="pessoaForm.get('nome')?.errors?.['required'] && pessoaForm.get('nome')?.touched" 
+                     class="text-red-500 text-sm mt-1">
+                  Nome é obrigatório
+                </div>
+              </div>
+
+              <!-- Data de Nascimento -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Data de Nascimento</label>
+                <input 
+                  formControlName="data_nasc" 
+                  type="date" 
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                <div *ngIf="pessoaForm.get('data_nasc')?.errors?.['required'] && pessoaForm.get('data_nasc')?.touched" 
+                     class="text-red-500 text-sm mt-1">
+                  Data de nascimento é obrigatória
+                </div>
+              </div>
+
+              <!-- CPF -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">CPF</label>
+                <input 
+                  formControlName="cpf" 
+                  type="text" 
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="000.000.000-00"
+                  (input)="formatarCPF($event)"
+                >
+                <div *ngIf="pessoaForm.get('cpf')?.errors?.['required'] && pessoaForm.get('cpf')?.touched" 
+                     class="text-red-500 text-sm mt-1">
+                  CPF é obrigatório
+                </div>
+              </div>
+
+              <!-- Sexo -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Sexo</label>
+                <select 
+                  formControlName="sexo" 
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="M">Masculino</option>
+                  <option value="F">Feminino</option>
+                </select>
+              </div>
+
+              <!-- Altura -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Altura (m)</label>
+                <input 
+                  formControlName="altura" 
+                  type="number" 
+                  step="0.01" 
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="1.75"
+                >
+                <div *ngIf="pessoaForm.get('altura')?.errors?.['required'] && pessoaForm.get('altura')?.touched" 
+                     class="text-red-500 text-sm mt-1">
+                  Altura é obrigatória
+                </div>
+              </div>
+
+              <!-- Peso -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Peso (kg)</label>
+                <input 
+                  formControlName="peso" 
+                  type="number" 
+                  step="0.1" 
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="70.5"
+                >
+                <div *ngIf="pessoaForm.get('peso')?.errors?.['required'] && pessoaForm.get('peso')?.touched" 
+                     class="text-red-500 text-sm mt-1">
+                  Peso é obrigatório
+                </div>
+              </div>
+
+              <!-- Botões -->
+              <div class="flex flex-wrap gap-4 justify-center mt-8">
+                <button 
+                  type="button" 
+                  (click)="incluir()" 
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                  [disabled]="!pessoaForm.valid"
+                >
+                  Incluir
+                </button>
+                <button 
+                  type="button" 
+                  (click)="alterar()" 
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                  [disabled]="!pessoaForm.valid"
+                >
+                  Alterar
+                </button>
+                <button 
+                  type="button" 
+                  (click)="excluir()" 
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                  [disabled]="!pessoaForm.get('cpf')?.value"
+                >
+                  Excluir
+                </button>
+                <button 
+                  type="button" 
+                  (click)="pesquisar()" 
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                  [disabled]="!pessoaForm.get('cpf')?.value"
+                >
+                  Pesquisar
+                </button>
+                <button 
+                  type="button" 
+                  (click)="calcularPesoIdeal()" 
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                  [disabled]="!pessoaForm.get('altura')?.value || !pessoaForm.get('sexo')?.value"
+                >
+                  Calcular Peso Ideal
+                </button>
+              </div>
+            </form>
+
+            <!-- Mensagens de Feedback -->
+            <div *ngIf="mensagem" 
+                 [ngClass]="{'bg-green-100 text-green-700': tipoMensagem === 'sucesso', 'bg-red-100 text-red-700': tipoMensagem === 'erro'}"
+                 class="mt-4 p-4 rounded-md">
+              {{ mensagem }}
+            </div>
+
+            <!-- Resultado do Peso Ideal -->
+            <div *ngIf="pesoIdeal" class="mt-4 p-4 bg-blue-100 text-blue-700 rounded-md">
+              <p class="font-semibold">Peso Ideal: {{ pesoIdeal }} kg</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
